@@ -1,0 +1,20 @@
+diff --git a/src/app/goals/page.tsx b/src/app/goals/page.tsx
+index 1234567..89abcde 100644
+--- a/src/app/goals/page.tsx
++++ b/src/app/goals/page.tsx
+@@ -556,5 +556,11 @@
+                 onBlur={() => {
+-                  if (taskTitle.trim() === 'Review Notes') {
+-                    setTaskEffort('30');
+-                  }
++                  const query = taskTitle.trim().toLowerCase();
++                  if (!query) return;
++                  // Dynamic duration estimation: check existing tasks for matching title
++                  let matched = tasks.find(t => t.title.trim().toLowerCase() === query);
++                  if (!matched) {
++                    matched = tasks.find(t => t.title.toLowerCase().includes(query) || query.includes(t.title.toLowerCase()));
++                  }
++                  if (matched) {
++                    setTaskEffort(String(matched.effort));
++                  }
+                 }}

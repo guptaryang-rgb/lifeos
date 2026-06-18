@@ -1,0 +1,168 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum EventCategory {
+  WORK
+  PERSONAL
+  ACADEMIC
+  HEALTH
+}
+
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum HabitFrequency {
+  DAILY
+  WEEKLY
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  password            String // hashed
+  name                String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tasks               Task[]
+  events              Event[]
+  goals               Goal[]
+  habits              Habit[]
+  focusSessions       FocusSession[]
+  analyticsSnapshots  AnalyticsSnapshot[]
+  scheduleSuggestions ScheduleSuggestion[]
+}
+
+model Task {
+  id                 String              @id @default(uuid())
+  title              String
+  description        String?
+  dueDate            DateTime
+  estimatedDuration  Int // in minutes
+  priority           Priority
+  energyLevel        EnergyLevel
+  status             TaskStatus          @default(NOT_STARTED)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  userId             String
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  focusSessions      FocusSession[]
+  scheduleSuggestion ScheduleSuggestion?
+}
+
+model Event {
+  id        String        @id @default(uuid())
+  title     String
+  startTime DateTime
+  endTime   DateTime
+  category  EventCategory
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  targetDate  DateTime
+  progress    Int         @default(0) // 0 to 100
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestones  Milestone[]
+}
+
+model Milestone {
+  id         String          @id @default(uuid())
+  title      String
+  status     MilestoneStatus @default(NOT_STARTED)
+  targetDate DateTime
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  goalId     String
+  goal       Goal            @relation(fields: [goalId], references: [id], onDelete: Cascade)
+}
+
+model Habit {
+  id        String         @id @default(uuid())
+  title     String
+  frequency HabitFrequency @default(DAILY)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs      HabitLog[]
+}
+
+model HabitLog {
+  id          String   @id @default(uuid())
+  completedAt DateTime @default(now())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+}
+
+model FocusSession {
+  id        String   @id @default(uuid())
+  startTime DateTime
+  endTime   DateTime
+  duration  Int // in minutes
+  createdAt DateTime @default(now())
+  taskId    String?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AnalyticsSnapshot {
+  id                String   @id @default(uuid())
+  date              DateTime @default(now())
+  workloadDensity   Float // scheduled focus hours / available hours
+  missedTaskCount   Int
+  streakDeclineRate Float // relative decline in habits (0 to 1)
+  focusTimeTrend    Float // relative change in focus hours (-1 to 1)
+  burnoutRiskScore  Float // 0 to 100
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model ScheduleSuggestion {
+  id        String   @id @default(uuid())
+  taskId    String   @unique
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

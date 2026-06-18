@@ -1,0 +1,202 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User model for credentials authentication and data owner scoping
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  password            String               // Hashed password
+  name                String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tasks               Task[]
+  events              Event[]
+  goals               Goal[]
+  habits              Habit[]
+  focusSessions       FocusSession[]
+  analyticsSnapshots  AnalyticsSnapshot[]
+  scheduleSuggestions ScheduleSuggestion[]
+}
+
+// Task model representing user tasks/assignments
+model Task {
+  id                  String               @id @default(uuid())
+  title               String
+  description         String?
+  dueDate             DateTime
+  estimatedDuration   Int                  // in minutes
+  priority            Priority             @default(MEDIUM)
+  energyLevel         EnergyLevel          @default(MEDIUM)
+  status              TaskStatus           @default(NOT_STARTED)
+  userId              String
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  focusSessions       FocusSession[]
+  scheduleSuggestions ScheduleSuggestion[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([userId])
+}
+
+// Event model representing calendar events
+model Event {
+  id        String        @id @default(uuid())
+  title     String
+  startTime DateTime
+  endTime   DateTime
+  category  EventCategory
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+// Goal model tracking progress linked to Milestones
+model Goal {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  targetDate  DateTime
+  progress    Int         @default(0) // progress percentage (0-100)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestones  Milestone[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+// Milestone model tracking sub-goals/objectives
+model Milestone {
+  id         String          @id @default(uuid())
+  title      String
+  status     MilestoneStatus @default(NOT_STARTED)
+  goalId     String
+  goal       Goal            @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  targetDate DateTime
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([goalId])
+}
+
+// Habit model tracking daily or weekly recurring behaviors
+model Habit {
+  id        String         @id @default(uuid())
+  title     String
+  frequency HabitFrequency @default(DAILY)
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs      HabitLog[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+// HabitLog model capturing individual completions of a Habit
+model HabitLog {
+  id          String   @id @default(uuid())
+  completedAt DateTime @default(now())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@index([habitId])
+}
+
+// FocusSession model tracking focus periods (e.g. Pomodoro)
+model FocusSession {
+  id        String    @id @default(uuid())
+  startTime DateTime
+  endTime   DateTime
+  duration  Int       // in minutes
+  taskId    String?   // optional link to a task
+  task      Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([taskId])
+}
+
+// AnalyticsSnapshot model storing computed behavioral insights per day
+model AnalyticsSnapshot {
+  id                String   @id @default(uuid())
+  date              DateTime
+  workloadDensity   Float
+  missedTaskCount   Int
+  streakDeclineRate Float
+  focusTimeTrend    Float
+  burnoutRiskScore  Float
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
+}
+
+// ScheduleSuggestion model storing AI planner heuristics suggestions
+model ScheduleSuggestion {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([taskId])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum EventCategory {
+  WORK
+  PERSONAL
+  ACADEMIC
+  HEALTH
+}
+
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum HabitFrequency {
+  DAILY
+  WEEKLY
+}
