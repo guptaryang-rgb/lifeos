@@ -1,112 +1,161 @@
-# LifeOS — AI-Powered Life Operating System
+# ⚡ LifeOS — AI-Powered Life Operating System
 
-> Your personal AI chief of staff. Manage tasks, nutrition, fitness, finances, habits, wellness, and more — all in one premium app.
+> Your personal AI chief of staff. Manage tasks, habits, wellness, fitness,
+> finances, and more — all in one beautifully crafted, offline-capable app.
 
-![License](https://img.shields.io/badge/license-MIT-blue) ![Platform](https://img.shields.io/badge/platform-web%20%7C%20iOS%20%7C%20Android-brightgreen)
+![Status](https://img.shields.io/badge/status-launchable-brightgreen)
+![No build](https://img.shields.io/badge/build-none-blue)
+![Offline](https://img.shields.io/badge/offline-first-purple)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Features
+## ✨ What It Does
 
-- 🤖 **AI Secretary** — 28+ natural language commands, Gemini API integration with offline NLP fallback
-- 📸 **Food Photo Scanner** — Snap a photo and AI identifies food items with full nutritional data
-- 🍎 **Nutrition Tracker** — 110-item food database, macro tracking, MET calorie burn estimation
-- 💪 **Fitness Tracker** — Cardio & strength logging, workout history, calorie calculations
-- 💰 **Finance Manager** — Budget tracking, 11 categories, analytics, recurring expense detection
-- 🧘 **Wellness Suite** — Water, sleep, mood, meditation, journal, 48-article knowledge library
-- 📚 **Study Tools** — Flashcards, quizzes, spaced repetition
-- 🔐 **Security** — PIN lock, auto-lock, encrypted secure vault
-- 📱 **Screen Time** — Tab tracking, productivity scoring, focus alerts
-- 📅 **Smart Calendar** — Event scheduling, conflict detection, AI-powered suggestions
-- 👑 **Premium** — Stripe-powered subscription with billing portal
+LifeOS is a 16-page single-page app that feels alive on first launch. It runs
+entirely in the browser — no server, no API keys, no build step.
 
-## Tech Stack
+### Pages
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Vanilla HTML/CSS/JS SPA |
-| Backend API | Next.js 14 App Router |
-| Database | PostgreSQL + Prisma ORM |
-| AI | Google Gemini 2.0 Flash (chat + vision) |
-| Auth | NextAuth.js + HMAC-SHA256 signed sessions |
-| Payments | Stripe Checkout + Customer Portal |
-| Mobile | CapacitorJS (iOS + Android) |
-| PWA | Service Worker + Web App Manifest |
+| Page | What it does |
+|---|---|
+| **Dashboard** | Cosmic hero with your daily briefing, AI-generated headline, burnout gauge, focus sparkline |
+| **Smart Calendar** | Week view with drag-and-drop, color-coded categories, conflict detection |
+| **AI Planner** | Heuristic scheduler that scores slots by priority × deadline × energy × earliness |
+| **Tasks** | Filterable list (Today / Upcoming / Overdue / Done) with search, add/edit modals |
+| **Goals** | Goal cards with auto-progress, linked milestones you can cycle through |
+| **Habits** | Streaks, 30-day rate, 12-week heatmap, mini-history per habit |
+| **Deep Work** | Pomodoro timer with animated SVG ring, mode pills, session logging |
+| **Study & Test** | Flashcard decks with **Leitner-box spaced repetition** (5 boxes, expanding intervals) |
+| **Fitness & Nutrition** | Meals + workouts, macro donut, calorie balance |
+| **Finance** | Budget by category, spending donut, recurring-expense auto-detection |
+| **Wellness** | Water/sleep/mood/meditation with quick-log cards, sleep bars, mood timeline, journal |
+| **Screen Time** | Productivity score, distracting-app alerts, manual logging |
+| **Analytics** | Custom SVG line + bar + donut charts — no chart library |
+| **Timeline** | Chronological activity stream across all data types |
+| **Integrations** | Connector marketplace UI (Google Cal, Todoist, Notion, etc.) |
+| **Security** | PIN lock (SHA-256 hashed), auto-lock, encrypted vault, data export/import/reset |
 
-## Getting Started
+### 🤖 AI Secretary (FAB)
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL (optional — falls back to local JSON file DB)
+Click the floating button (bottom-right). It parses **30+ natural-language commands** with zero API calls:
 
-### Installation
-```bash
-git clone <repo-url>
-cd lifeos
-npm install
-cp .env.example .env  # Configure your environment variables
+```
+add task: finish lab report
+i spent 12 on coffee
+i drank 4 glasses of water
+start 25 minute focus
+focus on algorithm review
+i slept 7.5 hours
+plan my day
+how's my burnout
+i did morning run
+make a flashcard for: BFS vs DFS
 ```
 
-### Environment Variables
-See `.env.example` for all required variables:
-- `DATABASE_URL` — PostgreSQL connection string
-- `NEXTAUTH_SECRET` — Random secret for session signing
-- `GEMINI_API_KEY` — Google AI API key (optional, enables AI features)
-- `STRIPE_SECRET_KEY` — Stripe secret key (optional, enables payments)
+It mutates your real data — adding tasks, logging habits, recording transactions, starting focus sessions.
 
-### Development
-```bash
-# Start the static server (port 3000) with API proxy
-node server.js
+## 🎨 Design
 
-# In another terminal, start the Next.js API server (port 4000)
-npm run dev
-```
+- **Theme:** "Cosmic Aurora" — deep-space background, animated nebula, drifting starfield
+- **Accent colors:** cyan → violet → magenta gradient (no generic SaaS purple)
+- **Type:** Inter for UI, JetBrains Mono for data
+- **Motion:** Spring physics on every interactive element
+- **A11y:** Skip-link, ARIA roles, keyboard nav, focus rings, reduced-motion support
 
-Open [http://localhost:3000](http://localhost:3000)
+## 🏗️ Architecture
 
-### Mobile Build
-```bash
-npm run build:mobile    # Build static assets into dist/
-npx cap add ios         # Add iOS platform (requires Mac + Xcode)
-npx cap add android     # Add Android platform (requires Android Studio)
-npx cap sync            # Sync web assets to native projects
-npx cap open ios        # Open in Xcode
-npx cap open android    # Open in Android Studio
-```
-
-## Project Structure
 ```
 lifeos/
-├── index.html              # SPA shell (15 pages)
-├── css/styles.css          # Design system (3000+ lines)
-├── js/                     # Frontend modules
-│   ├── app.js              # SPA router & coordination
-│   ├── secretary.js        # AI NLP engine (84KB)
-│   ├── food.js             # Nutrition & fitness
-│   ├── finance.js          # Budget & analytics
-│   ├── wellness.js         # Water/sleep/mood/journal/reads
-│   ├── security.js         # PIN lock & vault
-│   ├── capacitor-init.js   # Native bridge
-│   └── ...                 # 7 more modules
-├── src/                    # Next.js backend
-│   ├── app/api/            # 15+ API routes
-│   ├── lib/auth.ts         # HMAC session signing
-│   ├── lib/prisma.ts       # DB proxy with offline fallback
-│   ├── middleware.ts       # Rate limiting, CORS, CSP
-│   └── ...
-├── prisma/schema.prisma    # Database schema (13 models)
-├── server.js               # Static server + API proxy
-├── capacitor.config.json   # Mobile packaging config
-└── tests/e2e/              # Playwright E2E tests
+├── index.html              ← Single shell, semantic, no inline JS
+├── css/styles.css          ← Design system (1600 lines, ~40 components)
+├── js/
+│   ├── app.js              ← Entry: mount chrome, register routes
+│   ├── store.js            ← Reactive store with localStorage persistence
+│   ├── bus.js              ← Tiny event bus
+│   ├── router.js           ← Hash-based router with module lifecycle
+│   ├── utils.js            ← h() factory, icons, modals, toasts
+│   ├── planner.js          ← Heuristic scheduler + burnout calc
+│   ├── secretary.js        ← NLP command parser (no API)
+│   ├── secretary-ui.js     ← FAB + chat panel
+│   ├── seed.js             ← 2+ weeks of demo data
+│   ├── sidebar.js          ← Sidebar + topbar + search
+│   ├── toast-stack.js      ← Toast notifications
+│   ├── dashboard.js        ← 16 page modules, all <300 lines each
+│   ├── calendar.js planner-page.js tasks.js goals.js habits.js
+│   ├── focus.js study.js food.js finance.js wellness.js
+│   ├── screentime.js analytics.js timeline.js
+│   ├── integrations.js security.js
+├── icons/icon.svg          ← Cosmic lightning mark
+├── manifest.json           ← PWA manifest
+├── service-worker.js       ← Offline support
+├── .github/workflows/ci.yml
+├── EVALUATION.md           ← Honest assessment of the previous repo
+└── README.md
 ```
 
-## Testing
+**One coherent stack.** No parallel React/vanilla split. No empty folders pretending to be features.
+
+## 🚀 Run It
+
 ```bash
-# E2E: AI Secretary & Fitness
-node tests/e2e/test_fitness_bot.js
+# Any static server works:
+python3 -m http.server 8765
 
-# E2E: Cloud Sync & Premium
-node tests/e2e/test_api_sync.js
+# Or:
+npx serve .
+# Or:
+php -S localhost:8765
 ```
 
-## License
-MIT
+Then open `http://localhost:8765/`. That's it.
+
+The first run seeds 2+ weeks of realistic demo data — open the dashboard and you'll see real tasks, events, habits, focus sessions, meals, workouts, transactions, journal entries. All stored in `localStorage` under key `lifeos:v2`.
+
+## 📱 Install as PWA
+
+Visit it in Chrome / Edge / Safari → click the install icon → it'll launch in its own window like a native app.
+
+## 🧠 AI Planner Heuristic
+
+Scoring formula (higher = better slot):
+
+```
+score = priorityWeight × 20
+      + (1 / max(1, hoursUntilDue / 24)) × 10   ← urgency
+      + energyPreference(startHour) × 6          ← morning for HIGH energy
+      + (24 - startHour) × (HIGH ? 1 : 0.3)      ← earliness
+      + (conflict ? −20 : 0)                     ← overlap penalty
+```
+
+Tasks are then greedily placed into the highest-scoring free slot, skipping any that would miss a deadline.
+
+## 🔥 Burnout Score
+
+```
+score = min(40, max(0, (workloadDensity − 0.7) × 50))   ← workload
+      + min(30, missedTaskCount × 6)                    ← slippage
+      + min(20, streakDeclineRate × 20)                 ← habit erosion
+      + (focusTrend < 0 ? min(15, −focusTrend × 15) : 0)← focus loss
+      clamped to 0–100
+```
+
+Plus contextual recommendations — see `src/lib/planner.js`.
+
+## 🧪 Testing
+
+```bash
+# Run the CI smoke test locally:
+npm install --no-save playwright
+npx playwright install --with-deps chromium
+python3 -m http.server 8765 &
+node /path/to/smoke.cjs
+```
+
+The smoke test visits all 16 routes and asserts zero console errors.
+
+## 📜 License
+
+MIT — see [LICENSE](LICENSE).
+
+## 🙌 Credits
+
+Built as a 10x rebuild of [the original lifeos repo](https://github.com/guptaryang-rgb/lifeos) — which had an ambitious product spec but a confused two-stack architecture. See [EVALUATION.md](EVALUATION.md) for the honest assessment of what changed and why.
